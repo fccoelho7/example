@@ -37,15 +37,14 @@ export default function Home() {
 
         {loading && (<h2>Loading...</h2>)}
 
-        <ul>
-          {posts?.map(post => (
-            <ol>
-              <h3>{post?.title?.rendered}</h3>
+        <div className={styles.grid}>
+          {posts.map(post => (
+            <a className={styles.card} href={post?.link}>
+              <h3>{post?.title?.rendered} →</h3>
               <p dangerouslySetInnerHTML={{ __html: post?.excerpt?.rendered }} />
-              <a href={post?.link}>See more</a>
-            </ol>
+            </a>
           ))}
-        </ul>
+        </div>
       </main>
 
       <footer className={styles.footer}>
