@@ -3,8 +3,31 @@ import Link from 'next/link';
 import axios from 'axios';
 
 import styles from '../styles/Home.module.css';
+import { useEffect, useState } from 'react';
 
-function Home({ posts }) {
+function Home({ posts: receivedPosts }) {
+  const [posts, setPosts] = useState(receivedPosts);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function fecthPosts() {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(
+          `https://blog.apiki.com/wp-json/wp/v2/posts/?page=${page}`
+        );
+        setPosts([...posts, ...data]);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fecthPosts();
+  }, [page]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -25,6 +48,10 @@ function Home({ posts }) {
             </Link>
           ))}
         </div>
+
+        <button onClick={() => setPage(page + 1)}>
+          {loading ? 'Carregando...' : 'Carregar Mais'}
+        </button>
       </main>
 
       <footer className={styles.footer}>
