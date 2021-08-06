@@ -1,28 +1,10 @@
-import Head from 'next/head'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import Head from 'next/head';
+import Link from 'next/link';
+import axios from 'axios';
 
-import styles from '../styles/Home.module.css'
+import styles from '../styles/Home.module.css';
 
-export default function Home() {
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const { data } = await axios.get('https://blog.apiki.com/wp-json/wp/v2/posts')
-        setPosts(data)
-      } catch(e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPosts()
-  }, [])
-
+function Home({ posts }) {
   return (
     <div className={styles.container}>
       <Head>
@@ -31,18 +13,16 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Posts
-        </h1>
-
-        {loading && (<h2>Loading...</h2>)}
+        <h1 className={styles.title}>Posts</h1>
 
         <div className={styles.grid}>
-          {posts.map(post => (
-            <a className={styles.card} href={post?.link}>
-              <h3>{post?.title?.rendered} →</h3>
-              <p dangerouslySetInnerHTML={{ __html: post?.excerpt?.rendered }} />
-            </a>
+          {posts?.map((post) => (
+            <Link href={`/single/?id=${post?.id}`}>
+              <a className={styles.card}>
+                <h3>{post?.title?.rendered} →</h3>
+                <p dangerouslySetInnerHTML={{ __html: post?.excerpt?.rendered }} />
+              </a>
+            </Link>
           ))}
         </div>
       </main>
@@ -53,10 +33,21 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
+          Powered by <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
         </a>
       </footer>
     </div>
-  )
+  );
 }
+
+export async function getStaticProps() {
+  const { data: posts } = await axios.get('https://blog.apiki.com/wp-json/wp/v2/posts');
+
+  return {
+    props: {
+      posts,
+    },
+  };
+}
+
+export default Home;
